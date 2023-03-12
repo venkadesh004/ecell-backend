@@ -76,42 +76,13 @@ def addStock():
         data = request.get_json()
         # print(data)
 
-        com = db.child("company").get()
-        # print(len(com.val()))
-        length = len(com.val())
-        investments = {}
-        for i in com.val():
-            flag = 0
-            # print(i)
-            for j in i:
-                key = j
-                # print(i[j])
-                com = i[j]
-                if (com["id"] == data["id"]):
-                    investments = com["investments"]
-                    flag = 1
-                    break
-
-            if flag == 1:
-                break
-
-        # print(investments)
-        investments.append({
-            "amount": data["equity"],
-            "equity": data["amount"],
-            "email": data["email"]
-        })
-
-        # print(investments)
-
-        db.child("company").child(
-            length-1).child(key).update({"investments": investments})
-        
         comUser = db.child("companyUsers").get()
         # print(len(com.val()))
-        length = len(comUser.val())
+        # length = len(comUser.val())
         remaining = 0
+        length = 0
         for i in comUser.val():
+            length += 1
             flag = 0
             # print(i)
             for j in i:
@@ -129,9 +100,9 @@ def addStock():
         # print(investments)
         remaining = remaining-data["amount"]
         print(remaining)
-        db.child("companyUsers").child(length-1).child(keyNew).update({"remaining": remaining})
-        db.child("company").child(
-            length-1).child(key).update({"remaining": remaining})
+
+        if remaining < 0:
+            return "No Equity"
 
         investmentsInv = []
         balance = 0
@@ -163,10 +134,91 @@ def addStock():
         # print(balance)
         balance = balance-data["equity"]
 
+        if (balance < 0):
+            return "No Balance"
+
         # print(investmentsInv, balance)
 
         db.child("investor").child(key).update({"investments": investmentsInv})
         db.child("investor").child(key).update({"balance": balance})
+
+        com = db.child("company").get()
+        # print(len(com.val()))
+        # length = len(com.val())
+        # print("Length: ", length)
+        investments = {}
+        length = 0
+        for i in com.val():
+            length += 1
+            flag = 0
+            # print(i)
+            for j in i:
+                key = j
+                # print(i[j])
+                com = i[j]
+                if (com["id"] == data["id"]):
+                    investments = com["investments"]
+                    flag = 1
+                    break
+
+            if flag == 1:
+                break
+
+        # print(investments)
+        investments.append({
+            "amount": data["equity"],
+            "equity": data["amount"],
+            "email": data["email"]
+        })
+
+        # print(investments)
+        db.child("company").child(
+            length-1).child(key).update({"investments": investments})
+        
+        comUser = db.child("companyUsers").get()
+        # print(len(com.val()))
+        # length = len(comUser.val())
+        remaining = 0
+        length = 0
+        for i in comUser.val():
+            length += 1
+            flag = 0
+            # print(i)
+            for j in i:
+                keyNew = j
+                # print(i[j])
+                comUserN = i[j]
+                if (comUserN["comID"] == data["id"]):
+                    remaining = comUserN["remaining"]
+                    flag = 1
+                    break
+
+            if flag == 1:
+                break
+
+        # print(investments)
+        remaining = remaining-data["amount"]
+        print(remaining)
+
+        db.child("companyUsers").child(length-1).child(keyNew).update({"remaining": remaining})
+
+        com = db.child("company").get()
+        length = 0
+        for i in com.val():
+            length += 1
+            flag = 0
+            # print(i)
+            for j in i:
+                key = j
+                com = i[j]
+                if (com["id"] == data["id"]):
+                    flag = 1
+                    break
+            
+            if flag == 1:
+                break
+
+        db.child("company").child(length-1).child(key).update({"remaining": remaining})
 
         return "Done"
 
