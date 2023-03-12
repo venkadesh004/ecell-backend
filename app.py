@@ -1,7 +1,9 @@
 import pyrebase
 from flask import Flask, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 app.config["SECRET_KEY"] = "faslkdfjlaskdfjl;sdkfj"
 
@@ -30,12 +32,141 @@ def getinvestor(id):
 
 
 @app.route('/addCompanyUser', methods=["POST"])
-def addinvestor():
+def addCompanyUser():
     if request.method == "POST":
         data = request.get_json()
         print(data)
 
-        db.child("companyUsers").child("3").push(data)
+        users = db.child("companyUsers").get()
+        if (users.val() == None):
+            length = 0
+        else:
+            length = len(users.val())
+        # length = len(users.val())
+
+        data["user"]["comID"] = "com"+str(length)
+        data["user"]["remaining"] = 100
+        data["company"]["id"] = "com"+str(length)
+        data["company"]["remaining"] = 100
+
+        db.child("companyUsers").child(length).push(data["user"])
+        db.child("company").child(length).push(data["company"])
+
+        return "Done"
+
+    return "Error"
+
+
+@app.route('/addInvestor', methods=["POST"])
+def addInvestor():
+    if (request.method == "POST"):
+        data = request.get_json()
+        print(data)
+
+        db.child("investor").push(data)
+
+        return "Done"
+
+    return "Error"
+
+
+@app.route('/addStock', methods=["POST"])
+def addStock():
+    if request.method == "POST":
+        data = request.get_json()
+        # print(data)
+
+        com = db.child("company").get()
+        # print(len(com.val()))
+        length = len(com.val())
+        investments = {}
+        for i in com.val():
+            flag = 0
+            # print(i)
+            for j in i:
+                key = j
+                # print(i[j])
+                com = i[j]
+                if (com["id"] == data["id"]):
+                    investments = com["investments"]
+                    flag = 1
+                    break
+
+            if flag == 1:
+                break
+
+        # print(investments)
+        investments.append({
+            "amount": data["equity"],
+            "equity": data["amount"],
+            "email": data["email"]
+        })
+
+        # print(investments)
+
+        db.child("company").child(
+            length-1).child(key).update({"investments": investments})
+        
+        comUser = db.child("companyUsers").get()
+        # print(len(com.val()))
+        length = len(comUser.val())
+        remaining = 0
+        for i in comUser.val():
+            flag = 0
+            # print(i)
+            for j in i:
+                keyNew = j
+                # print(i[j])
+                comUserN = i[j]
+                if (comUserN["comID"] == data["id"]):
+                    remaining = comUserN["remaining"]
+                    flag = 1
+                    break
+
+            if flag == 1:
+                break
+
+        # print(investments)
+        remaining = remaining-data["amount"]
+        print(remaining)
+        db.child("companyUsers").child(length-1).child(keyNew).update({"remaining": remaining})
+        db.child("company").child(
+            length-1).child(key).update({"remaining": remaining})
+
+        investmentsInv = []
+        balance = 0
+
+        user = db.child("investor").get()
+        for i in user.val():
+            key = i
+            inv = user.val()[key]
+            # print(inv, key)
+            if (inv["email"] == data["email"]):
+                print(inv)
+                investmentsInv = inv["investments"]
+                balance = inv["balance"]
+                break
+
+        if (investmentsInv != ""):
+            investmentsInv.append({
+                "id": data["id"],
+                "amount": data["equity"],
+                "equity": data["amount"]
+            })
+        else:
+            investmentsInv = [{
+                "id": data["id"],
+                "amount": data["equity"],
+                "equity": data["amount"]
+            }]
+
+        # print(balance)
+        balance = balance-data["equity"]
+
+        # print(investmentsInv, balance)
+
+        db.child("investor").child(key).update({"investments": investmentsInv})
+        db.child("investor").child(key).update({"balance": balance})
 
         return "Done"
 

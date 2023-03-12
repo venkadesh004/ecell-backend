@@ -22,3 +22,4 @@ PyScreeze==0.1.28
 Pyrebase4==4.6.0
 PyRect==0.2.0
 pyrsistent==0.19.3
+Flask-Cors==3.0.10
