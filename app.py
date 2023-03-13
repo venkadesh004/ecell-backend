@@ -84,7 +84,7 @@ def addStock():
         for i in comUser.val():
             length += 1
             flag = 0
-            # print(i)
+            print(i)
             for j in i:
                 keyNew = j
                 # print(i[j])
