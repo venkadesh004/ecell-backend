@@ -84,22 +84,23 @@ def addStock():
         for i in comUser.val():
             length += 1
             flag = 0
-            print(i)
-            for j in i:
-                keyNew = j
-                # print(i[j])
-                comUserN = i[j]
-                if (comUserN["comID"] == data["id"]):
-                    remaining = comUserN["remaining"]
-                    flag = 1
-                    break
+            print("Data", i)
+            if (i != None):
+                for j in i:
+                    keyNew = j
+                    # print(i[j])
+                    comUserN = i[j]
+                    if (comUserN["comID"] == data["id"]):
+                        remaining = comUserN["remaining"]
+                        flag = 1
+                        break
 
             if flag == 1:
                 break
 
         # print(investments)
         remaining = remaining-data["amount"]
-        print(remaining)
+        print("Remaining", remaining)
 
         if remaining < 0:
             return "No Equity"
@@ -152,17 +153,18 @@ def addStock():
             length += 1
             flag = 0
             # print(i)
-            for j in i:
-                key = j
-                # print(i[j])
-                com = i[j]
-                if (com["id"] == data["id"]):
-                    investments = com["investments"]
-                    flag = 1
-                    break
+            if (i != None):
+                for j in i:
+                    key = j
+                    # print(i[j])
+                    com = i[j]
+                    if (com["id"] == data["id"]):
+                        investments = com["investments"]
+                        flag = 1
+                        break
 
-            if flag == 1:
-                break
+                if flag == 1:
+                    break
 
         # print(investments)
         investments.append({
@@ -184,14 +186,15 @@ def addStock():
             length += 1
             flag = 0
             # print(i)
-            for j in i:
-                keyNew = j
-                # print(i[j])
-                comUserN = i[j]
-                if (comUserN["comID"] == data["id"]):
-                    remaining = comUserN["remaining"]
-                    flag = 1
-                    break
+            if (i != None):
+                for j in i:
+                    keyNew = j
+                    # print(i[j])
+                    comUserN = i[j]
+                    if (comUserN["comID"] == data["id"]):
+                        remaining = comUserN["remaining"]
+                        flag = 1
+                        break
 
             if flag == 1:
                 break
@@ -208,15 +211,16 @@ def addStock():
             length += 1
             flag = 0
             # print(i)
-            for j in i:
-                key = j
-                com = i[j]
-                if (com["id"] == data["id"]):
-                    flag = 1
+            if (i != None):
+                for j in i:
+                    key = j
+                    com = i[j]
+                    if (com["id"] == data["id"]):
+                        flag = 1
+                        break
+                
+                if flag == 1:
                     break
-            
-            if flag == 1:
-                break
 
         db.child("company").child(length-1).child(key).update({"remaining": remaining})
 
